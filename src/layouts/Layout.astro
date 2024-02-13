@@ -1,0 +1,51 @@
+---
+import { getConfig, getIsAdmin } from "../db";
+import { readSession, verify } from "../cognito";
+
+const config = await getConfig();
+if (config === null) throw new Error("Config not found");
+
+const session = Astro.cookies.get("token")?.value ?? "";
+
+const loggedIn = await verify(session);
+const isAdmin = await getIsAdmin((await readSession(session))?.username!);
+---
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{config.name}</title>
+    <style is:global>
+      @tailwind base;
+      @tailwind components;
+      @tailwind utilities;
+
+      @layer components {
+        .c-input {
+          @apply rounded-lg border-[1px] border-neutral-600 px-5 py-2;
+        }
+
+        .c-button {
+          @apply rounded-lg bg-blue-800 px-5 py-2 text-white hover:bg-blue-900;
+        }
+
+        .c-link {
+          @apply text-blue-500 hover:text-blue-600;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="flex items-end gap-5 p-4">
+      <a href="/" class="text-xl">{config.name}</a>
+      <div class="flex-1"></div>
+      {isAdmin && <a href="/dashboard/">Admin Dashboard</a>}
+      {loggedIn && <a href="/cart/">Shopping Cart</a>}
+      {!loggedIn && <a href="/login/">Login</a>}
+    </nav>
+    <slot />
+  </body>
+</html>

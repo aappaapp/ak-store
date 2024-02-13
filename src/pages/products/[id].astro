@@ -1,0 +1,40 @@
+---
+import ImageBrowser from "../../components/ImageBrowser.svelte";
+import Layout from "../../layouts/Layout.astro";
+import type { Image } from "../../types";
+import { getProduct } from "../../db";
+
+const product = await getProduct(Astro.params.id!);
+
+if (product === null) {
+  return new Response(null, { status: 404 });
+}
+
+const { images, name, description, discount, price } = product;
+---
+
+<Layout>
+  <main>
+    <div class="flex">
+      <div class="w-1/2 p-10">
+        <ImageBrowser {images} client:load />
+      </div>
+      <div class="w-1/2 p-10">
+        <h1 class="py-2 text-4xl font-bold">{name}</h1>
+        <p class="py-2 text-neutral-500">{description}</p>
+        <h2 class="py-2 text-2xl">
+          {
+            discount > 0 ? (
+              <>
+                <s>US${price}</s>&nbsp;US${price * (1 - discount)}
+              </>
+            ) : (
+              <>US${price}</>
+            )
+          }
+        </h2>
+        <button class="c-button">Add to cart</button>
+      </div>
+    </div>
+  </main>
+</Layout>

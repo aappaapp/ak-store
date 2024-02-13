@@ -1,0 +1,15 @@
+---
+interface Props {
+  href: string;
+  class?: string;
+}
+
+const { href } = Astro.props;
+---
+
+<a
+  {href}
+  class={`block rounded-xl border-[1px] border-neutral-600 p-5 text-center hover:bg-neutral-100 ${Astro.props.class ?? ""}`}
+>
+  <slot />
+</a>
