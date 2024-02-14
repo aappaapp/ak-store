@@ -2,50 +2,38 @@
 import Layout from "../layouts/Layout.astro";
 import { changePassword, listUsers, login, verify } from "../cognito";
 
-if (Astro.request.method === "POST") {
-  const formData = await Astro.request.formData();
-  const email = formData.get("email");
-  const password = formData.get("password");
+const code = Astro.url.searchParams.get("code");
 
-  if (typeof email !== "string") throw Error("No email received.");
-  if (typeof password !== "string") throw Error("No password received.");
+if (code) {
+  const res = await fetch(
+    "https://ak-store.auth.us-east-1.amazoncognito.com/oauth2/token",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        client_id: import.meta.env.APP_CLIENT_ID,
+        redirect_uri: "http://localhost:4321/login/",
+        code: code,
+        client_secret: import.meta.env.APP_CLIENT_SECRET,
+      }),
+    },
+  );
 
-  const loginOutput = await login(email, password);
+  const json = await res.json();
 
-  if (!loginOutput.AuthenticationResult)
-    throw Error("No AuthenticationResult received.");
-  if (!loginOutput.AuthenticationResult.AccessToken)
-    throw Error("No AccessToken received.");
-
-  Astro.cookies.set("token", loginOutput.AuthenticationResult.AccessToken, {
+  Astro.cookies.set("token", json.id_token, {
     path: "/",
-    expires: new Date(
-      Date.now() + (loginOutput.AuthenticationResult.ExpiresIn ?? 0) * 1000,
-    ),
+    expires: new Date(Date.now() + json.expires_in * 1000),
   });
+
   return Astro.redirect("/", 302);
 }
----
 
-<Layout>
-  <div class="flex justify-center">
-    <form
-      enctype="multipart/form-data"
-      method="POST"
-      class="flex w-1/2 flex-col gap-2 text-center"
-    >
-      <div class="flex flex-col gap-1">
-        <label for="email" class="text-lg">Email</label>
-        <input type="email" name="email" id="email" class="c-input" />
-      </div>
-      <div class="flex flex-col gap-1">
-        <label for="password" class="text-lg">Password</label>
-        <input type="password" name="password" id="password" class="c-input" />
-      </div>
-      <button type="submit" class="c-button">Login</button>
-      <div>
-        No account? <a href="/signup/" class="c-link">Sign Up</a>
-      </div>
-    </form>
-  </div>
-</Layout>
+return Astro.redirect(
+  `https://ak-store.auth.us-east-1.amazoncognito.com/authorize?client_id=${import.meta.env.APP_CLIENT_ID}&response_type=code&scope=email+openid&redirect_uri=http://localhost:4321/login/`,
+  302,
+);
+---

@@ -29,3 +29,10 @@ export async function getIsAdmin(userId: string) {
   if (typeof user.isAdmin === "boolean") return user.isAdmin;
   return false;
 }
+
+export async function addCart(user: string, productId: string) {
+  await usersCollection.updateOne(
+    { id: user },
+    { $push: { cart: { id: productId, attributes: {} } } },
+  );
+}

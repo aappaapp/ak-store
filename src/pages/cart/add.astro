@@ -1,0 +1,20 @@
+---
+import { readSession, verify } from "../../cognito";
+import { addCart } from "../../db";
+
+let loggedIn = false;
+const session = Astro.cookies.get("token")?.value;
+if (typeof session !== "undefined") loggedIn = await verify(session);
+
+if (!loggedIn) return Astro.redirect("/login/");
+
+const userSub: string = (await readSession(session))?.sub;
+
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+  const id = formData.get("id");
+  await addCart(userSub, id);
+}
+
+return Astro.redirect("/cart/");
+---

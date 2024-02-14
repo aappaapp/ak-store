@@ -7,7 +7,7 @@ import { readSession } from "../../cognito";
 const products = await getProducts();
 
 const session = Astro.cookies.get("token")?.value ?? "";
-const isAdmin = await getIsAdmin((await readSession(session))?.username!);
+const isAdmin = await getIsAdmin((await readSession(session))?.sub!);
 if (!isAdmin) {
   return new Response(null, {
     status: 403,

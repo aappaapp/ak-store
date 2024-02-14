@@ -1,5 +1,7 @@
 import { CognitoIdentityProvider } from "@aws-sdk/client-cognito-identity-provider";
 import { CognitoJwtVerifier } from "aws-jwt-verify";
+import { SimpleJwksCache } from "aws-jwt-verify/jwk";
+import { SimpleJsonFetcher } from "aws-jwt-verify/https";
 
 const cognito = new CognitoIdentityProvider({
   endpoint: "https://cognito-idp.us-east-1.amazonaws.com",
@@ -9,11 +11,20 @@ const cognito = new CognitoIdentityProvider({
     secretAccessKey: import.meta.env.SECRET_ACCESS_KEY,
   },
 });
-const verifier = CognitoJwtVerifier.create({
-  userPoolId: "us-east-1_ymKU3QODa",
-  tokenUse: "access",
-  clientId: import.meta.env.APP_CLIENT_ID,
-});
+const verifier = CognitoJwtVerifier.create(
+  {
+    userPoolId: "us-east-1_ymKU3QODa",
+    tokenUse: "id",
+    clientId: import.meta.env.APP_CLIENT_ID,
+  },
+  {
+    jwksCache: new SimpleJwksCache({
+      fetcher: new SimpleJsonFetcher({
+        defaultRequestOptions: { responseTimeout: 10000 },
+      }),
+    }),
+  },
+);
 
 export async function login(username: string, password: string) {
   return await cognito.initiateAuth({
@@ -44,7 +55,8 @@ export async function verify(token: string) {
   try {
     await verifier.verify(token);
     return true;
-  } catch {
+  } catch (e) {
+    console.error(e);
     return false;
   }
 }

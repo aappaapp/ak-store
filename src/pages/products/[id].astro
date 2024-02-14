@@ -10,7 +10,7 @@ if (product === null) {
   return new Response(null, { status: 404 });
 }
 
-const { images, name, description, discount, price } = product;
+const { images, name, description, discount, price, _id } = product;
 ---
 
 <Layout>
@@ -33,7 +33,10 @@ const { images, name, description, discount, price } = product;
             )
           }
         </h2>
-        <button class="c-button">Add to cart</button>
+        <form method="POST" action="/cart/add/" enctype="multipart/form-data">
+          <input type="hidden" value={_id} name="id" />
+          <button type="submit" class="c-button">Add to cart</button>
+        </form>
       </div>
     </div>
   </main>
