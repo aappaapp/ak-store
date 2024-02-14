@@ -11,3 +11,14 @@ export interface Product {
   discount: number;
   images: Image[];
 }
+
+export interface User {
+  id: string;
+  isAdmin?: boolean;
+  cart: CartItem[];
+}
+
+export interface CartItem {
+  id: string;
+  attributes: Record<string, any>;
+}

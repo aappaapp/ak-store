@@ -1,16 +1,17 @@
 ---
 import { getConfig, getIsAdmin } from "../db";
 import { readSession, verify } from "../cognito";
-import { log } from "astro/dist/core/logger/core";
 
 const config = await getConfig();
 if (config === null) throw new Error("Config not found");
 
 let loggedIn = false;
+let isAdmin = false;
 const session = Astro.cookies.get("token")?.value;
-if (typeof session !== "undefined") loggedIn = await verify(session);
-
-const isAdmin = await getIsAdmin((await readSession(session))?.sub!);
+if (typeof session !== "undefined") {
+  loggedIn = await verify(session);
+  isAdmin = await getIsAdmin((await readSession(session))?.sub!);
+}
 ---
 
 <html>

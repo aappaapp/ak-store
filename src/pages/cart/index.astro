@@ -1,5 +1,45 @@
 ---
+import { readSession } from "../../cognito";
 import Layout from "../../layouts/Layout.astro";
+import { getProductByObjectId, listCartItems } from "../../db";
+import { ObjectId } from "mongodb";
+
+const session = Astro.cookies.get("token")?.value;
+let decodedSession: Awaited<ReturnType<typeof readSession>> = null;
+if (typeof session !== "undefined") {
+  decodedSession = await readSession(session);
+}
+
+const loggedIn = decodedSession !== null;
+const userSub: string = decodedSession?.sub!;
+
+if (!loggedIn) return Astro.redirect("/login/");
+
+const cart = await listCartItems(userSub);
+const a = (
+  await Promise.all(cart.map((v) => getProductByObjectId(new ObjectId(v.id))))
+).filter((v) => v !== null);
 ---
 
-<Layout> hi </Layout>
+<Layout>
+  {
+    a.map((v, i) => {
+      return (
+        <div class="flex items-center">
+          {v!.name}&nbsp;US${v!.price}
+          <form
+            method="POST"
+            enctype="multipart/form-data"
+            action="/cart/remove/"
+            class="flex gap-2"
+          >
+            <input type="hidden" value={i} name="id" />
+            <button type="submit" class="c-button">
+              Remove
+            </button>
+          </form>
+        </div>
+      );
+    })
+  }
+</Layout>

@@ -1,7 +1,7 @@
 ---
 Astro.cookies.delete("token", { path: "/" });
 return Astro.redirect(
-  `https://ak-store.auth.us-east-1.amazoncognito.com/logout?client_id=${import.meta.env.APP_CLIENT_ID}&logout_uri=http://localhost:4321/`,
+  `${import.meta.env.COGNITO_URL}/logout?client_id=${import.meta.env.APP_CLIENT_ID}&logout_uri=${Astro.url.origin}`,
   302,
 );
 ---

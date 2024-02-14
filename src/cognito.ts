@@ -4,7 +4,7 @@ import { SimpleJwksCache } from "aws-jwt-verify/jwk";
 import { SimpleJsonFetcher } from "aws-jwt-verify/https";
 
 const cognito = new CognitoIdentityProvider({
-  endpoint: "https://cognito-idp.us-east-1.amazonaws.com",
+  endpoint: import.meta.env.COGNITO_ENDPOINT,
   region: "us-east-1",
   credentials: {
     accessKeyId: import.meta.env.ACCESS_KEY,
@@ -13,7 +13,7 @@ const cognito = new CognitoIdentityProvider({
 });
 const verifier = CognitoJwtVerifier.create(
   {
-    userPoolId: "us-east-1_ymKU3QODa",
+    userPoolId: import.meta.env.USER_POOL_ID,
     tokenUse: "id",
     clientId: import.meta.env.APP_CLIENT_ID,
   },
@@ -83,6 +83,6 @@ export async function changePassword(
 
 export async function listUsers() {
   return await cognito.listUsers({
-    UserPoolId: "us-east-1_ymKU3QODa",
+    UserPoolId: import.meta.env.USER_POOL_ID,
   });
 }

@@ -1,6 +1,6 @@
 ---
 import { readSession } from "../../cognito";
-import { addCart } from "../../db";
+import { removeCartItem } from "../../db";
 
 const session = Astro.cookies.get("token")?.value;
 let decodedSession: Awaited<ReturnType<typeof readSession>> = null;
@@ -17,8 +17,7 @@ if (Astro.request.method === "POST") {
   const formData = await Astro.request.formData();
   const id = formData.get("id");
   if (typeof id !== "string") throw Error("No id received.");
-
-  await addCart(userSub, id);
+  await removeCartItem(userSub, parseInt(id));
 }
 
 return Astro.redirect("/cart/");

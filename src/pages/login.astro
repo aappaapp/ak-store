@@ -5,22 +5,19 @@ import { changePassword, listUsers, login, verify } from "../cognito";
 const code = Astro.url.searchParams.get("code");
 
 if (code) {
-  const res = await fetch(
-    "https://ak-store.auth.us-east-1.amazoncognito.com/oauth2/token",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        grant_type: "authorization_code",
-        client_id: import.meta.env.APP_CLIENT_ID,
-        redirect_uri: "http://localhost:4321/login/",
-        code: code,
-        client_secret: import.meta.env.APP_CLIENT_SECRET,
-      }),
+  const res = await fetch(`${import.meta.env.COGNITO_URL}/oauth2/token`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
     },
-  );
+    body: new URLSearchParams({
+      grant_type: "authorization_code",
+      client_id: import.meta.env.APP_CLIENT_ID,
+      redirect_uri: `${Astro.url.origin}/login/`,
+      code: code,
+      client_secret: import.meta.env.APP_CLIENT_SECRET,
+    }),
+  });
 
   const json = await res.json();
 
@@ -33,7 +30,7 @@ if (code) {
 }
 
 return Astro.redirect(
-  `https://ak-store.auth.us-east-1.amazoncognito.com/authorize?client_id=${import.meta.env.APP_CLIENT_ID}&response_type=code&scope=email+openid&redirect_uri=http://localhost:4321/login/`,
+  `${import.meta.env.COGNITO_URL}/authorize?client_id=${import.meta.env.APP_CLIENT_ID}&response_type=code&scope=email+openid&redirect_uri=${Astro.url.origin}/login/`,
   302,
 );
 ---

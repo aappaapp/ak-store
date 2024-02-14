@@ -34,7 +34,7 @@ const { images, name, description, discount, price, _id } = product;
           }
         </h2>
         <form method="POST" action="/cart/add/" enctype="multipart/form-data">
-          <input type="hidden" value={_id} name="id" />
+          <input type="hidden" value={_id.toHexString()} name="id" />
           <button type="submit" class="c-button">Add to cart</button>
         </form>
       </div>
