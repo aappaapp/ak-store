@@ -13,7 +13,7 @@ if (code) {
     body: new URLSearchParams({
       grant_type: "authorization_code",
       client_id: import.meta.env.APP_CLIENT_ID,
-      redirect_uri: `${Astro.url.origin}/login/`,
+      redirect_uri: `${import.meta.env.URL}/login/`,
       code: code,
       client_secret: import.meta.env.APP_CLIENT_SECRET,
     }),
@@ -30,7 +30,7 @@ if (code) {
 }
 
 return Astro.redirect(
-  `${import.meta.env.COGNITO_URL}/authorize?client_id=${import.meta.env.APP_CLIENT_ID}&response_type=code&scope=email+openid&redirect_uri=${Astro.url.origin}/login/`,
+  `${import.meta.env.COGNITO_URL}/authorize?client_id=${import.meta.env.APP_CLIENT_ID}&response_type=code&scope=email+openid&redirect_uri=${import.meta.env.URL}/login/`,
   302,
 );
 ---

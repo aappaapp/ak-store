@@ -1,7 +1,7 @@
 ---
 Astro.cookies.delete("token", { path: "/" });
 return Astro.redirect(
-  `${import.meta.env.COGNITO_URL}/logout?client_id=${import.meta.env.APP_CLIENT_ID}&logout_uri=${Astro.url.origin}`,
+  `${import.meta.env.COGNITO_URL}/logout?client_id=${import.meta.env.APP_CLIENT_ID}&logout_uri=${import.meta.env.URL}`,
   302,
 );
 ---
